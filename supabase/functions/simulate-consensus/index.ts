@@ -1,0 +1,9 @@
+// Supabase Edge Function: orchestrate consensus simulation
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+serve(async (_req) => {
+  return new Response(JSON.stringify({ ok: true }), {
+    headers: { "Content-Type": "application/json" },
+    status: 200,
+  });
+});

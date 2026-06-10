@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 30% 93%;
+    --foreground: 30 10% 10%;
+    --card: 45 25% 97%;
+    --card-foreground: 30 10% 10%;
+    --popover: 45 25% 97%;
+    --popover-foreground: 30 10% 10%;
+    --primary: 45 30% 93%;
+    --primary-foreground: 30 10% 10%;
+    --secondary: 40 20% 88%;
+    --secondary-foreground: 30 10% 10%;
+    --muted: 40 18% 86%;
+    --muted-foreground: 30 8% 42%;
+    --accent: 30 12% 16%;
+    --accent-foreground: 45 30% 93%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 40 18% 80%;
+    --input: 40 18% 80%;
+    --ring: 30 12% 16%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .validator-accept   { @apply text-green-600 bg-green-50 border-green-200; }
+  .validator-reject   { @apply text-red-600 bg-red-50 border-red-200; }
+  .validator-uncertain{ @apply text-amber-600 bg-amber-50 border-amber-200; }
+  .validator-leader   { @apply text-indigo-600 bg-indigo-50 border-indigo-200; }
+
+  .consensus-forming  { @apply text-amber-700 bg-amber-50 border-amber-200; }
+  .consensus-reached  { @apply text-green-700 bg-green-50 border-green-200; }
+  .consensus-failed   { @apply text-red-700 bg-red-50 border-red-200; }
+  .consensus-appealed { @apply text-purple-700 bg-purple-50 border-purple-200; }
+
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-sm border border-white/80 shadow-sm;
+  }
+
+  .validator-glow-accept  { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+  .validator-glow-reject  { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+  .validator-glow-leader  { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+}
