@@ -1,3 +1,10 @@
+"""Fix register page — pass username in signup metadata, remove manual profile insert."""
+import pathlib
+
+ROOT = pathlib.Path("C:/GenB/GenLayer Consensus Simulator")
+dest = ROOT / "app/(auth)/register/page.tsx"
+
+code = '''\
 "use client";
 
 import { useState } from "react";
@@ -155,3 +162,7 @@ export default function RegisterPage() {
     </div>
   );
 }
+'''
+
+dest.write_bytes(code.encode("utf-8"))
+print(f"Written: {dest.relative_to(ROOT)}")
