@@ -1,3 +1,59 @@
+"""Fix server-side Firestore call in dashboard layout.
+The layout is a Server Component — it must use firebase-admin (adminDb),
+not the firebase client SDK which requires a browser runtime.
+"""
+import pathlib
+
+ROOT = pathlib.Path("C:/GenB/GenLayer Consensus Simulator")
+
+def write(rel, code):
+    p = ROOT / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(code.encode("utf-8"))
+    print(f"  wrote  {rel}")
+
+# ── 1. Add admin-side getUserProfile to lib/firebase/admin.ts ─────────────────
+write("lib/firebase/admin.ts", """\
+import * as admin from "firebase-admin";
+
+function getAdminApp() {
+  if (admin.apps.length) return admin.apps[0]!;
+
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+  if (!serviceAccountJson || serviceAccountJson === "PASTE_SERVICE_ACCOUNT_JSON_HERE") {
+    return admin.initializeApp({
+      projectId: "genlayer-consensus-simulator",
+    });
+  }
+
+  try {
+    const serviceAccount = JSON.parse(serviceAccountJson);
+    return admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      projectId:  "genlayer-consensus-simulator",
+    });
+  } catch {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON");
+  }
+}
+
+export const adminApp  = getAdminApp();
+export const adminAuth = admin.auth(adminApp);
+export const adminDb   = admin.firestore(adminApp);
+
+// Server-side profile lookup — uses Admin SDK, bypasses security rules
+export async function getAdminUserProfile(
+  uid: string
+): Promise<{ uid: string; username: string; email: string; role: string; xp: number } | null> {
+  const snap = await adminDb.collection("users").doc(uid).get();
+  if (!snap.exists) return null;
+  return snap.data() as { uid: string; username: string; email: string; role: string; xp: number };
+}
+""")
+
+# ── 2. Fix dashboard layout to use getAdminUserProfile ───────────────────────
+write("app/(dashboard)/layout.tsx", """\
 import Link from "next/link";
 import type { Route } from "next";
 import { getServerUser } from "@/lib/firebase/auth-helpers";
@@ -82,3 +138,6 @@ export default async function DashboardLayout({
     </div>
   );
 }
+""")
+
+print("Done. Run: npm run build")

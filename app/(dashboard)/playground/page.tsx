@@ -51,6 +51,8 @@ export default function PlaygroundPage() {
   const showAppeal     = status === "appeal_triggered" && !isRunning;
   const showResult     = ["accepted", "rejected", "appeal_triggered", "finalized"].includes(status) && !isRunning;
   const showValidators = activeRun && activeRun.validators.length > 0;
+  const isRealChain    = activeRun?.isRealChain ?? false;
+  const chainStatus    = activeRun?.chainStatus;
 
   return (
     <div className="min-h-screen bg-[#efece4]">
@@ -79,8 +81,21 @@ export default function PlaygroundPage() {
             {activeRun && <ConsensusTimeline status={status} />}
             {showAppeal && <AppealTrigger onAppeal={handleAppeal} disabled={isRunning} />}
 
+            {isRunning && isRealChain && chainStatus && (
+              <div className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+                <span className="font-medium">⛓ Studio Net: </span>{chainStatus}
+              </div>
+            )}
+
             {showResult && activeRun?.consensusResult && !showAppeal && (
-              <SimulationResult run={activeRun} onReset={handleReset} onAppeal={handleAppeal} />
+              <>
+                {activeRun.txHash && isRealChain && (
+                  <div className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-xs text-green-800 font-mono truncate">
+                    ⛓ tx: {activeRun.txHash}
+                  </div>
+                )}
+                <SimulationResult run={activeRun} onReset={handleReset} onAppeal={handleAppeal} />
+              </>
             )}
           </div>
 

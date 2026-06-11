@@ -1,7 +1,43 @@
+"""Remove remaining Supabase references — rewrite dashboard layout and server actions."""
+import pathlib, shutil
+
+ROOT = pathlib.Path("C:/GenB/GenLayer Consensus Simulator")
+
+def write(rel: str, code: str) -> None:
+    p = ROOT / rel
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_bytes(code.encode("utf-8"))
+    print(f"  wrote  {rel}")
+
+# ── 1. app/actions/auth.ts — Firebase version ─────────────────────────────────
+write("app/actions/auth.ts", """\
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE } from "@/lib/firebase/auth-helpers";
+
+export async function signOut() {
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE, "", {
+    httpOnly: true,
+    secure:   process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge:   0,
+    path:     "/",
+  });
+  revalidatePath("/", "layout");
+  redirect("/login");
+}
+""")
+
+# ── 2. app/(dashboard)/layout.tsx — Firebase version ─────────────────────────
+write("app/(dashboard)/layout.tsx", """\
 import Link from "next/link";
 import type { Route } from "next";
 import { getServerUser } from "@/lib/firebase/auth-helpers";
-import { getAdminUserProfile } from "@/lib/firebase/admin";
+import { getUserProfile } from "@/lib/firebase/firestore";
 import { signOut } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 
@@ -23,8 +59,8 @@ export default async function DashboardLayout({
   let username = "Explorer";
 
   if (serverUser) {
-    const profile = await getAdminUserProfile(serverUser.uid);
-    if (profile?.username) username = profile.username;
+    const profile = await getUserProfile(serverUser.uid);
+    if (profile) username = profile.username;
   }
 
   return (
@@ -82,3 +118,14 @@ export default async function DashboardLayout({
     </div>
   );
 }
+""")
+
+# ── 3. Delete lib/supabase/ directory ─────────────────────────────────────────
+supabase_dir = ROOT / "lib" / "supabase"
+if supabase_dir.exists():
+    shutil.rmtree(supabase_dir)
+    print("  removed lib/supabase/")
+else:
+    print("  lib/supabase/ already gone")
+
+print("\nDone. Run: python scripts/run_firebase_migration.py  (or just npm run build)")

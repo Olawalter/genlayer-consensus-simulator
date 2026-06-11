@@ -1,3 +1,9 @@
+"""Write the real simulationService.ts — keeps original LiveValidator types, adds real chain."""
+import pathlib
+
+ROOT = pathlib.Path("C:/GenB/GenLayer Consensus Simulator")
+
+code = r'''
 "use client";
 
 import { VALIDATOR_PERSONAS } from "@/lib/validators/personas";
@@ -446,3 +452,8 @@ export async function runAppeal(
   onUpdate({ ...run });
   return run;
 }
+'''
+
+p = ROOT / "services/simulationService.ts"
+p.write_bytes(code.strip().encode("utf-8"))
+print("wrote services/simulationService.ts")

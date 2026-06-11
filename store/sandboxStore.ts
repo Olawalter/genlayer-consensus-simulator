@@ -15,7 +15,7 @@ interface SandboxStore {
   setActiveTemplate: (id: string | null) => void;
   setFunctionInput: (input: string) => void;
   setIsRunning: (v: boolean) => void;
-  setCurrentResult: (result: SandboxExecutionResult) => void;
+  setCurrentResult: (result: SandboxExecutionResult | null) => void;
   selectValidator: (index: number | null) => void;
   clearHistory: () => void;
 }
@@ -38,7 +38,7 @@ export const useSandboxStore = create<SandboxStore>()(
       setCurrentResult: (result) =>
         set((s) => ({
           currentResult: result,
-          history: [result, ...s.history].slice(0, 20),
+          history: result ? [result, ...s.history].slice(0, 20) : s.history,
           selectedValidatorIndex: null,
         })),
       selectValidator: (index) => set({ selectedValidatorIndex: index }),
