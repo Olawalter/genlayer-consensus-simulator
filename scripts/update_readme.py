@@ -1,3 +1,10 @@
+"""Update README.md to reflect current tech stack and setup."""
+import pathlib
+
+ROOT = pathlib.Path("C:/GenB/GenLayer Consensus Simulator")
+readme = ROOT / "README.md"
+
+readme.write_text('''\
 # GenLayer Consensus Simulator
 
 An interactive educational platform for understanding GenLayer Intelligent Contracts and Optimistic Democracy. Submit real claims, watch five AI validators independently evaluate them on GenLayer Studio Net, and observe on-chain consensus in action.
@@ -38,7 +45,7 @@ An interactive educational platform for understanding GenLayer Intelligent Contr
 
 1. User submits a claim in the Playground
 2. A `ClaimEvaluator` Intelligent Contract is deployed to GenLayer Studio Net
-3. The contract's `evaluate()` method calls an LLM via `gl.vm.run_nondet_unsafe` — each of 5 validators runs this independently
+3. The contract\'s `evaluate()` method calls an LLM via `gl.vm.run_nondet_unsafe` — each of 5 validators runs this independently
 4. The chain reaches consensus (Optimistic Democracy / Equivalence Principle)
 5. Real validator votes, tx hash, and contract address are displayed in the UI
 
@@ -95,7 +102,7 @@ def evaluate(self, claim: str) -> None:
             f"Evaluate: {claim} — respond YES or NO"
         )
     def validator_fn(leader_result) -> bool:
-        return isinstance(leader_result, gl.vm.Return) and \
+        return isinstance(leader_result, gl.vm.Return) and \\
                leader_result.calldata.strip().upper()[:3] in ("YES", "NO")
 
     response = gl.vm.run_nondet_unsafe(leader_fn, validator_fn)
@@ -117,3 +124,6 @@ Required GitHub repository secrets:
 | `VERCEL_PROJECT_ID` | Vercel project ID |
 
 See [docs/developer-guide.md](docs/developer-guide.md) for full setup details.
+''', encoding="utf-8")
+
+print(f"Written: {readme}")
